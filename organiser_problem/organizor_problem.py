@@ -28,7 +28,7 @@ class Organizer(object):
         """ Initialization """
         self.total_no_of_hours = n
 
-    def parseCSVInput(self, csv_input):
+    def parseCSVInput(self):
         """
         this will parse the csv string input with # saperated records like  'p1,2,100 # p2,3,200 # p3,1,250 # p4,5,100'
 	
@@ -36,20 +36,19 @@ class Organizer(object):
 	Second item indicates number of hours presenter will take for the presentation (assume it to be an integer)
 	Last one indicates the associated cost (Fees that presenter will charge).
         """
-        if not csv_input:
-            return
-        presenter_list = []
+	#read csv file as input
+	input_file = csv.reader(open("presentor_details.csv"))
+	presenter_list = []
         #this will return a list of tuple where each tuple is a presentors details like name hrs and cost
-        res = csv_input.split('#')
-        for item in res:
-            presenter_list.append(tuple(item.split(',')))
-        return presenter_list
+	for row in input_file:
+            presenter_list.append(tuple(row))
+        return presenter_list[1:]
 
     def organiseEvent(self, presenter_list):
         """
         schedule event for n hrs and allocate presentor for all combination for time <= n
         """
-	max_hrs = self.total_no_of_hours
+	max_hrs = float(self.total_no_of_hours)
 	final_time_list = []
 	import itertools as it
 	comb_list = list(it.combinations(presenter_list,3))
@@ -69,7 +68,8 @@ class Organizer(object):
 	    if checker <= max_hrs and not break_flag: 
 		final_time_list.append(comb)
         if not final_time_list:
-            return "Not enough presenters"
+	    print "\n\n\tNot Enough Presentors\n\n"
+            return 0
 	return final_time_list
     
     def organiseEventOptimumCost(self, presenter_list):
@@ -82,25 +82,26 @@ class Organizer(object):
 	for presenter in presenter_list:
 	    total_cost = 0
 	    for item in presenter:
-		p_cost = item[2]    
+		p_cost = item[2]
 		total_cost = total_cost + int(p_cost)
             # sum the cost and add it to the cost list with the record like (('p1', '2', '50'),('p2', '2', '100'), ('p3', '2', '150')), 300)
 	    final_cost_list.append((presenter, total_cost))
-        
-	print final_cost_list
         #sort the cost list and return first record with minimum cost 
 	return sorted(final_cost_list,key=itemgetter(1))[0][0]
     
-
 if __name__=='__main__':
-    #csv_input is a string input with # saperated records
-    csv_input = "p1,2,100#p2,2,200#p3,2,250#p4,5,100"
-    event_total_time = 6.0
+    import sys
+    #take event total time as terminal input like "python organizor_problem.py 6"
+    event_total_time = sys.argv[1]
     organiser_obj = Organizer(event_total_time)
     #convert csv_input to a list of tuples like [(p1, 2, 100), (p2, 3, 200), (p3, 2, 200)]
-    list_input = organiser_obj.parseCSVInput(csv_input)
+    list_input = organiser_obj.parseCSVInput()
     final_time_list = organiser_obj.organiseEvent(list_input)
-    #If multiple cases satisfy this scenario, select the ones with minimum cost.
-    if len(final_time_list) > 1:
+    #If multiple cases satisfy this scenario, select the ones with minimum cost.    
+    if isinstance(final_time_list, list) and len(final_time_list) > 1:
+	print "\n\n\t we have multiple cases satisfy the scenario\n\n"
+	print final_time_list
+        print "\n\n\t now select the ones with minimum cost"
         final_time_list = organiser_obj.organiseEventOptimumCost(final_time_list)
+    print "\n\n Final List of Presentor for the Session : ",final_time_list,"\n\n"
 
