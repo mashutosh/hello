@@ -8,12 +8,8 @@ class OrganizorTestCase(unittest.TestCase):
     def test_parseCSVInput(self):
         """ """
         organiser_obj = Organizer(6.0)
-        csv_input = "p1,2,100#p2,2,200#p3,2,250#p4,5,100"
-        pattern = organiser_obj.parseCSVInput(csv_input)
+        pattern = organiser_obj.parseCSVInput()
         assert len(pattern) > 0
-        csv_input = ""
-        pattern = organiser_obj.parseCSVInput(csv_input)
-        assert pattern ==  None
 
     def test_organiseEvent(self):
         """
@@ -27,7 +23,7 @@ class OrganizorTestCase(unittest.TestCase):
         organiser_obj = Organizer(6.0)
         comb_list_input = [('p1', '4', '100'), ('p2', '2', '200'), ('p3', '2', '250'), ('p4', '5', '100')]
         pattern = organiser_obj.organiseEvent(comb_list_input)
-        assert pattern == 'Not enough presenters'
+        assert pattern == 0
 
     def test_organiseEventOptimumCost(self):
         """
